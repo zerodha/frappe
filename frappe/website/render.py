@@ -58,7 +58,8 @@ def render(path=None, http_status_code=None):
 		else:
 			try:
 				data = render_page_by_language(path)
-			except frappe.PageDoesNotExistError:
+			except frappe.PageDoesNotExistError as e:
+				raise e
 				doctype, name = get_doctype_from_path(path)
 				if doctype and name:
 					path = "printview"
