@@ -58,27 +58,29 @@ def render(path=None, http_status_code=None):
 		else:
 			try:
 				data = render_page_by_language(path)
-			except frappe.PageDoesNotExistError:
-				doctype, name = get_doctype_from_path(path)
-				if doctype and name:
-					path = "printview"
-					frappe.local.form_dict.doctype = doctype
-					frappe.local.form_dict.name = name
-				elif doctype:
-					path = "list"
-					frappe.local.form_dict.doctype = doctype
-				else:
-					# 404s are expensive, cache them!
-					frappe.cache().hset("website_404", frappe.request.url, True)
-					data = render_page("404")
-					http_status_code = 404
+			except frappe.PageDoesNotExistError as e:
+				raise e
 
-				if not data:
-					try:
-						data = render_page(path)
-						http_status_code = http_status_code or frappe.flags.response_status_code
-					except frappe.PermissionError as e:
-						data, http_status_code = render_403(e, path)
+				# doctype, name = get_doctype_from_path(path)
+				# if doctype and name:
+				# 	path = "printview"
+				# 	frappe.local.form_dict.doctype = doctype
+				# 	frappe.local.form_dict.name = name
+				# elif doctype:
+				# 	path = "list"
+				# 	frappe.local.form_dict.doctype = doctype
+				# else:
+				# 	# 404s are expensive, cache them!
+				# 	frappe.cache().hset("website_404", frappe.request.url, True)
+				# 	data = render_page("404")
+				# 	http_status_code = 404
+
+				# if not data:
+				# 	try:
+				# 		data = render_page(path)
+				# 		http_status_code = http_status_code or frappe.flags.response_status_code
+				# 	except frappe.PermissionError as e:
+				# 		data, http_status_code = render_403(e, path)
 
 			except frappe.PermissionError as e:
 				data, http_status_code = render_403(e, path)
